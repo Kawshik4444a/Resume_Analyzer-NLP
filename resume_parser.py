@@ -77,7 +77,7 @@ def csv_skills(doc):
 
     return skills
 
-nlp_skills = spacy.load('TrainedModel/skills')  # Load the trained NER model for skills
+nlp_skills = spacy.load('TrainedModel/test')  # Load the trained NER model for skills
 
 def extract_skills_from_ner(doc):
     non_skill_labels = {'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL', 'EMAIL'}
