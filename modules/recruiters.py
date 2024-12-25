@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from resume_parser import extract_skills,extract_resume_info_from_pdf  # Assuming this function is already defined in your resume_parser module
+from resume_parser import extract_skills, extract_resume_info_from_pdf  # Assuming this function is already defined in your resume_parser module
 
 # Function to load job listings from a CSV file
 def load_job_listings(file_path):
@@ -36,15 +36,23 @@ def process_recruiters_mode():
         st.header("Extracted Skills from Resume:")
         st.write(', '.join(skills) if skills else "No skills extracted.")
 
-        # Compare extracted skills with job requirements
+        # Check if resume matches all required skills for any job
+        matching_jobs = []
         for index, row in job_listings.iterrows():
             required_skills = set(row['required_skills'].split(','))  # Assuming skills are comma-separated
-            matched_skills = required_skills.intersection(set(skills))
+            missing_skills = required_skills - set(skills)  # Skills that are required but not in the resume
 
-            if matched_skills:
-                st.write(f"Matched Skills for {row['job_title']}: {', '.join(matched_skills)}")
-            else:
-                st.write(f"No matched skills for {row['job_title']}.")
+            if not missing_skills:  # If there are no missing skills, the resume is a match
+                matching_jobs.append(row)
 
+        if matching_jobs:
+            st.subheader("Jobs you can apply to:")
+            for job in matching_jobs:
+                st.write(f"**Job Title:** {job['job_title']}")
+                st.write(f"**Required Skills:** {job['required_skills']}")
+                st.markdown('<hr>', unsafe_allow_html=True)
+        else:
+            st.write("No jobs match the skills in your resume.")
+    
 if __name__ == '__main__':
     process_recruiters_mode()
