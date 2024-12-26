@@ -9,32 +9,46 @@ def load_job_listings(file_path):
 
 # Function to display job listings
 def display_job_listings(job_listings):
-    st.header("Available Job Listings")
+    st.markdown('<h2 style="color: #FF6347;">Available Job Listings</h2>', unsafe_allow_html=True)
     for index, row in job_listings.iterrows():
-        st.subheader(f"Job Title: {row['job_title']}")
-        st.write(f"Required Skills: {row['required_skills']}")
-        st.markdown('<hr>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="background-color: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <h4 style="color: #4CAF50;">Job Title: {row['job_title']}</h4>
+            <p><strong>Required Skills:</strong> {row['required_skills']}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Function to process the recruiters' mode
 def process_recruiters_mode():
-    st.title("Recruiters Section")
-
+    # Page title and custom header
+    st.markdown('<h1 style="text-align: center; color: #4682B4;">Recruiters Section</h1>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align: center; color: #808080;">Upload resumes to check job compatibility</p>', unsafe_allow_html=True)
+    
     # Load job listings
     job_listings = load_job_listings('data/job_posting.csv')  # Adjust the path as necessary
     display_job_listings(job_listings)
 
     # Section to upload resumes for skill extraction
-    uploaded_file = st.file_uploader("Upload a PDF resume", type="pdf")
+    uploaded_file = st.file_uploader(
+        label="Upload a PDF Resume", 
+        type="pdf", 
+        label_visibility="visible",
+        help="Upload a PDF resume to analyze and match with job listings."
+    )
 
     if uploaded_file:
-        st.write("File uploaded successfully!")
-
+        st.success("File uploaded successfully! Processing resume...")
+        
         # Extract skills from the uploaded resume
         pdf_text = extract_resume_info_from_pdf(uploaded_file)  # Assuming this function is defined
         skills = extract_skills(pdf_text)  # Extract skills using the existing function
 
-        st.header("Extracted Skills from Resume:")
-        st.write(', '.join(skills) if skills else "No skills extracted.")
+        st.markdown('<h3 style="color: #FF8C00;">Extracted Skills from Resume:</h3>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="background-color: #F0FFF0; padding: 10px; border-radius: 5px;">
+            {', '.join(skills) if skills else "<em>No skills extracted.</em>"}
+        </div>
+        """, unsafe_allow_html=True)
 
         # Check if resume matches all required skills for any job
         matching_jobs = []
@@ -46,13 +60,17 @@ def process_recruiters_mode():
                 matching_jobs.append(row)
 
         if matching_jobs:
-            st.subheader("Jobs you can apply to:")
+            st.markdown('<h3 style="color: #2E8B57;">Jobs You Can Apply To:</h3>', unsafe_allow_html=True)
             for job in matching_jobs:
-                st.write(f"**Job Title:** {job['job_title']}")
-                st.write(f"**Required Skills:** {job['required_skills']}")
-                st.markdown('<hr>', unsafe_allow_html=True)
+                st.markdown(f"""
+                <div style="background-color: #FFFACD; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                    <h4>{job['job_title']}</h4>
+                    <p><strong>Required Skills:</strong> {job['required_skills']}</p>
+                </div>
+                """, unsafe_allow_html=True)
         else:
-            st.write("No jobs match the skills in your resume.")
-    
+            st.markdown('<h3 style="color: #FF4500;">No Jobs Match Your Resume</h3>', unsafe_allow_html=True)
+            st.info("Your resume doesn't meet the required skills for any job listings.")
+
 if __name__ == '__main__':
     process_recruiters_mode()
